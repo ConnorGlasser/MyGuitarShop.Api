@@ -16,6 +16,7 @@ namespace MyGuitarShop.Data.Ado.Entities
         [MaxLength(10)]
         public required string ProductCode { get; set; }
 
+        [MaxLength(255)]
         public required string ProductName { get; set; }
 
         public required string Description { get; set; }
