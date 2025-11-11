@@ -8,6 +8,6 @@ namespace MyGuitarShop.Common.Interfaces
 {
     public interface IRepository<TEntity>
     {
-        Task<IEnumerable<TEntity>> GetAllAsync()
+        Task<IEnumerable<TEntity>> GetAllAsync();
     }
 }
