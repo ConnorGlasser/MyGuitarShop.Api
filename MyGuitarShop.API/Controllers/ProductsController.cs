@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Repository;
 
 namespace MyGuitarShop.API.Controllers
@@ -8,16 +10,17 @@ namespace MyGuitarShop.API.Controllers
     [ApiController]
     public class ProductsController(
         ILogger<ProductsController> logger,
-        ProductRepo repo) : ControllerBase
+        IRepository<ProductEntity> repo) 
+        : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> Get()
         {
             try
             {
-                var products = await repo.GetAllProductsAsync();
+                var products = await repo.GetAllAsync();
 
-                return Ok(products.Select(p=>p.ProductName));
+                return Ok(products);
             }
             catch (Exception ex)
             {
