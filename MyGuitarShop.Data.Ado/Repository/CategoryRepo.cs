@@ -36,7 +36,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // Keep reading through every row 
                 while (await reader.ReadAsync())
                 {
-                    // create a new product var
+                    // create a new category var
                     var category = new CategoryEntity
                     {
                         // assign the info from the columns to each of the properties of the category
