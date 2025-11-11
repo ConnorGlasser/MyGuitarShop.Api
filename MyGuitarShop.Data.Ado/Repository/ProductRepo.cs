@@ -30,7 +30,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // creates an SQL command that uses said connection
                 await using var command = new SqlCommand("SELECT * FROM Products", connection);
 
-                // ???
+                // creates an SQL Data reader that will read data from our sql tables
                 await using var reader = await command.ExecuteReaderAsync();
 
                 // Keep reading through every row 
