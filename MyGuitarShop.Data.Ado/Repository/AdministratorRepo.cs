@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,15 +15,15 @@ using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
 {
-    public class CustomerRepo(
-        ILogger<CustomerRepo> logger,
+    public class AdministratorRepo(
+        ILogger<AdministratorRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<CustomerEntity>
+        : IRepository<AdministratorEntity>
     {
-        public async Task<IEnumerable<CustomerEntity>> GetAllAsync()
+        public async Task<IEnumerable<AdministratorEntity>> GetAllAsync()
         {
-            // Create a list of categories
-            var customers = new List<CustomerEntity>();
+            // Create a list of admins
+            var admins = new List<AdministratorEntity>();
 
             try
             {
@@ -30,7 +31,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
 
                 // creates an SQL command that uses said connection
-                await using var command = new SqlCommand("SELECT * FROM Customers", connection);
+                await using var command = new SqlCommand("SELECT * FROM Administrators", connection);
 
                 // creates an SQL Data reader that will read data from our sql tables
                 await using var reader = await command.ExecuteReaderAsync();
@@ -38,30 +39,28 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // Keep reading through every row 
                 while (await reader.ReadAsync())
                 {
-                    // create a new customer var
-                    var customer = new CustomerEntity
+                    // create a new admin var
+                    var admin = new AdministratorEntity
                     {
-                        // assign the info from the columns to each of the properties of the customer
-                        CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        // assign the info from the columns to each of the properties of the admin
+                        AdminID = reader.GetInt32(reader.GetOrdinal("AdminID")),
                         EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
                         Password = reader.GetString(reader.GetOrdinal("Password")),
                         FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                        LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                        ShippingAddressID = reader.IsDBNull(reader.GetOrdinal("ShippingAddressID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("ShippingAddressID")),
-                        BillingAddressID = reader.IsDBNull(reader.GetOrdinal("BillingAddressID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                        LastName = reader.GetString(reader.GetOrdinal("LastName"))
                     };
-                    // add this customer to the list
-                    customers.Add(customer);
+                    // add this admin to the list
+                    admins.Add(admin);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message, "Error retrieving customer list");
+                logger.LogError(ex.Message, "Error retrieving admin list");
             }
 
-            // Return the list of customers
+            // Return the list of admins
             // if there is an error, it will return a semi-complete list (everything up to the error)
-            return customers;
+            return admins;
         }
     }
 }

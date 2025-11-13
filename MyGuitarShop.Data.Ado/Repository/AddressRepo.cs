@@ -59,7 +59,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message, "Error retrieving categories list");
+                logger.LogError(ex.Message, "Error retrieving address list");
             }
 
             // Return the list of addresses
