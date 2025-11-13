@@ -20,6 +20,57 @@ namespace MyGuitarShop.Data.Ado.Repository
         SqlConnectionFactory sqlConnectionFactory)
         : IRepository<AddressEntity>
     {
+        public Task<int> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<AddressEntity?> FindByIDAsync(int id)
+        {
+            // Create a Address var
+            AddressEntity address = null;
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand("SELECT * FROM Addresses WHERE AddressID = @AddressID", connection);
+
+                // set the variable @AddressID with the id sent into this function
+                command.Parameters.AddWithValue("@AddressID", id);
+
+                // creates an SQL Data reader that will read data from our sql tables
+                await using var reader = await command.ExecuteReaderAsync();
+
+                // if the AddressID isn't null
+                if (await reader.ReadAsync())
+                {
+                    address = new AddressEntity
+                    {
+                        // assign the info from the columns to each of the properties of the address
+                        AddressID = reader.GetInt32(reader.GetOrdinal("AddressID")),
+                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        Line1 = reader.GetString(reader.GetOrdinal("Line1")),
+                        Line2 = reader.GetString(reader.GetOrdinal("Line2")),
+                        City = reader.GetString(reader.GetOrdinal("City")),
+                        State = reader.GetString(reader.GetOrdinal("State")),
+                        ZipCode = reader.GetString(reader.GetOrdinal("ZipCode")),
+                        Phone = reader.GetString(reader.GetOrdinal("Phone")),
+                        Disabled = reader.GetInt32(reader.GetOrdinal("Disabled"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error finding address {id} by ID");
+            }
+
+            // return the address, or null if an error occured
+            return address;
+        }
+
         public async Task<IEnumerable<AddressEntity>> GetAllAsync()
         {
             // Create a list of addresses
@@ -65,6 +116,16 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Return the list of addresses
             // if there is an error, it will return a semi-complete list (everything up to the error)
             return addresses;
+        }
+
+        public Task<int> InsertAsync(AddressEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> UpdateAsync(int id, AddressEntity entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -20,6 +20,53 @@ namespace MyGuitarShop.Data.Ado.Repository
         SqlConnectionFactory sqlConnectionFactory)
         : IRepository<AdministratorEntity>
     {
+        public Task<int> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<AdministratorEntity?> FindByIDAsync(int id)
+        {
+            // Create a admin var
+            AdministratorEntity admin = null;
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand("SELECT * FROM Administrators WHERE AdminID = @AdminID", connection);
+
+                // set the variable @AdminID with the id sent into this function
+                command.Parameters.AddWithValue("@AdminID", id);
+
+                // creates an SQL Data reader that will read data from our sql tables
+                await using var reader = await command.ExecuteReaderAsync();
+
+                // if the AdminID isn't null
+                if (await reader.ReadAsync())
+                {
+                    admin = new AdministratorEntity
+                    {
+                        // assign the info from the columns to each of the properties of the admin
+                        AdminID = reader.GetInt32(reader.GetOrdinal("AdminID")),
+                        EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
+                        Password = reader.GetString(reader.GetOrdinal("Password")),
+                        FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                        LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error finding admin {id} by ID");
+            }
+
+            // return the admin, or null if an error occured
+            return admin;
+        }
+
         public async Task<IEnumerable<AdministratorEntity>> GetAllAsync()
         {
             // Create a list of admins
@@ -61,6 +108,16 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Return the list of admins
             // if there is an error, it will return a semi-complete list (everything up to the error)
             return admins;
+        }
+
+        public Task<int> InsertAsync(AdministratorEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> UpdateAsync(int id, AdministratorEntity entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

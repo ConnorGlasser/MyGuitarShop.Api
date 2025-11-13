@@ -19,6 +19,55 @@ namespace MyGuitarShop.Data.Ado.Repository
         SqlConnectionFactory sqlConnectionFactory)
         : IRepository<CustomerEntity>
     {
+        public Task<int> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<CustomerEntity?> FindByIDAsync(int id)
+        {
+            // Create a customer var
+            CustomerEntity customer = null;
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand("SELECT * FROM Customers WHERE CustomerID = @CustomerID", connection);
+
+                // set the variable @CustomerID with the id sent into this function
+                command.Parameters.AddWithValue("@CustomerID", id);
+
+                // creates an SQL Data reader that will read data from our sql tables
+                await using var reader = await command.ExecuteReaderAsync();
+
+                // if the CustomerID isn't null
+                if (await reader.ReadAsync())
+                {
+                    customer = new CustomerEntity
+                    {
+                        // assign the info from the columns to each of the properties of the customer
+                        CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
+                        Password = reader.GetString(reader.GetOrdinal("Password")),
+                        FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                        LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                        ShippingAddressID = reader.IsDBNull(reader.GetOrdinal("ShippingAddressID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("ShippingAddressID")),
+                        BillingAddressID = reader.IsDBNull(reader.GetOrdinal("BillingAddressID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error finding customer {id} by ID");
+            }
+
+            // return the customer, or null if an error occured
+            return customer;
+        }
+
         public async Task<IEnumerable<CustomerEntity>> GetAllAsync()
         {
             // Create a list of categories
@@ -62,6 +111,16 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Return the list of customers
             // if there is an error, it will return a semi-complete list (everything up to the error)
             return customers;
+        }
+
+        public Task<int> InsertAsync(CustomerEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> UpdateAsync(int id, CustomerEntity entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -19,6 +19,59 @@ namespace MyGuitarShop.Data.Ado.Repository
         SqlConnectionFactory sqlConnectionFactory)
         : IRepository<OrderEntity>
     {
+        public Task<int> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<OrderEntity?> FindByIDAsync(int id)
+        {
+            // Create an order var
+            OrderEntity order = null;
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand("SELECT * FROM Orders WHERE OrderID = @OrderID", connection);
+
+                // set the variable @OrderID with the id sent into this function
+                command.Parameters.AddWithValue("@OrderID", id);
+
+                // creates an SQL Data reader that will read data from our sql tables
+                await using var reader = await command.ExecuteReaderAsync();
+
+                // if the orderID isn't null
+                if (await reader.ReadAsync())
+                {
+                    order = new OrderEntity
+                    {
+                        // assign the info from the columns to each of the properties of the order
+                        OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
+                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("CategoryID")),
+                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
+                        ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
+                        TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
+                        ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
+                        ShipAddressID = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
+                        CardType = reader.GetString(reader.GetOrdinal("CardType")),
+                        CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
+                        CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
+                        BillingAddressID = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error finding order {id} by ID");
+            }
+
+            // return the order, or null if an error occured
+            return order;
+        }
+
         public async Task<IEnumerable<OrderEntity>> GetAllAsync()
         {
             // Create a list of orders
@@ -30,7 +83,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
 
                 // creates an SQL command that uses said connection
-                await using var command = new SqlCommand("SELECT * FROM Customers", connection);
+                await using var command = new SqlCommand("SELECT * FROM Orders", connection);
 
                 // creates an SQL Data reader that will read data from our sql tables
                 await using var reader = await command.ExecuteReaderAsync();
@@ -66,6 +119,16 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Return the list of orders
             // if there is an error, it will return a semi-complete list (everything up to the error)
             return orders;
+        }
+
+        public Task<int> InsertAsync(OrderEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> UpdateAsync(int id, OrderEntity entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }
