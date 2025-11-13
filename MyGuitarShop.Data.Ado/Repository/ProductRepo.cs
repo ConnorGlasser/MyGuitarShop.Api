@@ -115,9 +115,39 @@ namespace MyGuitarShop.Data.Ado.Repository
             return products;
         }
 
-        public Task<int> InsertAsync(ProductEntity entity)
+        public async Task<int> InsertAsync(ProductEntity entity)
         {
-            throw new NotImplementedException();
+            // Create an insert query with variables
+            const string query = @"
+                INSERT INTO Products (CategoryID, ProductCode, ProductName, Description, ListPrice, DiscountPercent, DateAdded) 
+                VALUES (@CategoryID, @ProductCode, @ProductName, @Description, @ListPrice, @DiscountPercent, @DateAdded);";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable @ProductID with the id sent into this function
+                command.Parameters.AddWithValue("@CategoryID", entity.CategoryID);
+                command.Parameters.AddWithValue("@ProductCode", entity.ProductCode);
+                command.Parameters.AddWithValue("@ProductName", entity.ProductName);
+                command.Parameters.AddWithValue("@Description", entity.Description);
+                command.Parameters.AddWithValue("@ListPrice", entity.ListPrice);
+                command.Parameters.AddWithValue("@DiscountPercent", entity.DiscountPercent);
+                command.Parameters.AddWithValue("@DateAdded", entity.DateAdded);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+                
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new product");
+                return 0;
+            }
         }
 
         public Task<int> UpdateAsync(int id, ProductEntity entity)
