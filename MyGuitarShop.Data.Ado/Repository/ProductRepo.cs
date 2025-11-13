@@ -109,7 +109,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return products;
         }
 
-        public async Task<int> InsertAsync(ProductDTO entity)
+        public async Task<int> InsertAsync(ProductDTO DTO)
         {
             // Create an insert query with variables
             const string query = @"
@@ -125,13 +125,13 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var command = new SqlCommand(query, connection);
 
                 // set the variable with the entity sent into this function
-                command.Parameters.AddWithValue("@CategoryID", entity.CategoryID);
-                command.Parameters.AddWithValue("@ProductCode", entity.ProductCode);
-                command.Parameters.AddWithValue("@ProductName", entity.ProductName);
-                command.Parameters.AddWithValue("@Description", entity.Description);
-                command.Parameters.AddWithValue("@ListPrice", entity.ListPrice);
-                command.Parameters.AddWithValue("@DiscountPercent", entity.DiscountPercent);
-                command.Parameters.AddWithValue("@DateAdded", entity.DateAdded);
+                command.Parameters.AddWithValue("@CategoryID", DTO.CategoryID);
+                command.Parameters.AddWithValue("@ProductCode", DTO.ProductCode);
+                command.Parameters.AddWithValue("@ProductName", DTO.ProductName);
+                command.Parameters.AddWithValue("@Description", DTO.Description);
+                command.Parameters.AddWithValue("@ListPrice", DTO.ListPrice);
+                command.Parameters.AddWithValue("@DiscountPercent", DTO.DiscountPercent);
+                command.Parameters.AddWithValue("@DateAdded", DateTime.UtcNow);
 
                 // run the query
                 return await command.ExecuteNonQueryAsync();
@@ -144,9 +144,36 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public Task<int> UpdateAsync(int id, ProductDTO DTO)
+        public async Task<int> UpdateAsync(int id, ProductDTO DTO)
         {
-            throw new NotImplementedException();
+            // Create an update query with variables
+            const string query = @"
+                UPDATE Products
+                SET ProductName = @ProductName, ListPrice = @ListPrice, DiscountPrice = @DiscountPrice
+                WHERE ProductID = @ProductID";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variables with the entity sent into this function
+                command.Parameters.AddWithValue("@ProductID", id);
+                command.Parameters.AddWithValue("@ProductName", DTO.ProductName);
+                command.Parameters.AddWithValue("@ListPrice", DTO.ListPrice);
+                command.Parameters.AddWithValue("@DiscountPercent", DTO.DiscountPercent);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error updating product");
+                return 0;
+            }
         }
     }
 }

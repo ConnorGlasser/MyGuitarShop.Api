@@ -130,9 +130,34 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public Task<int> UpdateAsync(int id, CategoryEntity entity)
+        public async Task<int> UpdateAsync(int id, CategoryEntity DTO)
         {
-            throw new NotImplementedException();
+            // Create an update query with variables
+            const string query = @"
+                UPDATE Products
+                SET CategoryName = @CategoryName
+                WHERE CategoryID = @CategoryID";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variables with the entity sent into this function
+                command.Parameters.AddWithValue("@CategoryID", id);
+                command.Parameters.AddWithValue("@CategoryName", DTO.CategoryName);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error updating category");
+                return 0;
+            }
         }
     }
 }
