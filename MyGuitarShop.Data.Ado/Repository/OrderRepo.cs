@@ -60,7 +60,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message, "Error retrieving categories list");
+                logger.LogError(ex.Message, "Error retrieving order list");
             }
 
             // Return the list of orders
