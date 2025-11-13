@@ -49,7 +49,7 @@ namespace MyGuitarShop.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProductAsync([FromBody] ProductEntity newProduct)
+        public async Task<IActionResult> CreateProductAsync(ProductEntity newProduct)
         {
             try
             {
