@@ -158,9 +158,36 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public Task<int> UpdateAsync(int id, OrderEntity entity)
+        public async Task<int> UpdateAsync(int id, OrderEntity DTO)
         {
-            throw new NotImplementedException();
+            // Create an update query with variables
+            const string query = @"
+                UPDATE Orders
+                SET CustomerID = @CustomerID, ShipDate = @ShipDate, ShipAddressID = @ShipAddressID
+                WHERE OrderID = @OrderID";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variables with the entity sent into this function
+                command.Parameters.AddWithValue("@OrderID", id);
+                command.Parameters.AddWithValue("@CustomerID", DTO.CustomerID);
+                command.Parameters.AddWithValue("@ShipDate", DTO.ShipDate);
+                command.Parameters.AddWithValue("@ShipAddressID", DTO.ShipAddressID);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error updating order");
+                return 0;
+            }
         }
     }
 }
