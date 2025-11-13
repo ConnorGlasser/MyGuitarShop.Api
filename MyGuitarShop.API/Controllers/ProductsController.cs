@@ -11,7 +11,7 @@ namespace MyGuitarShop.API.Controllers
     [ApiController]
     public class ProductsController(
         ILogger<ProductsController> logger,
-        IRepository<ProductDTO> repo) 
+        IRepository<ProductDTO> repo)
         : ControllerBase
     {
         [HttpGet]
@@ -30,7 +30,7 @@ namespace MyGuitarShop.API.Controllers
             }
         }
 
-        [HttpGet ("{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetProductByIDAsync(int id)
         {
             try
@@ -61,6 +61,25 @@ namespace MyGuitarShop.API.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error creating product");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProductAsync(int id, ProductDTO updatedProduct)
+        {
+            try
+            {
+                if (await repo.FindByIDAsync(id) == null)
+                    return NotFound($"Product with id {id} not found");
+
+                var numProductsUpdated = await repo.UpdateAsync(id, updatedProduct);
+
+                return Ok($"{numProductsUpdated} new products updated");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error updating product with id {ProductID}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
             }
         }
