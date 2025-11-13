@@ -110,9 +110,36 @@ namespace MyGuitarShop.Data.Ado.Repository
             return admins;
         }
 
-        public Task<int> InsertAsync(AdministratorEntity entity)
+        public async Task<int> InsertAsync(AdministratorEntity entity)
         {
-            throw new NotImplementedException();
+            // Create an insert query with variables
+            const string query = @"
+                INSERT INTO Administrators (EmailAddress, Password, FirstName, LastName) 
+                VALUES (@EmailAddress, @Password, @FirstName, @LastName) ;";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable with the entity sent into this function
+                command.Parameters.AddWithValue("@EmailAddress", entity.EmailAddress);
+                command.Parameters.AddWithValue("@Password", entity.Password);
+                command.Parameters.AddWithValue("@FirstName", entity.FirstName);
+                command.Parameters.AddWithValue("@LastName", entity.LastName);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new admin");
+                return 0;
+            }
         }
 
         public Task<int> UpdateAsync(int id, AdministratorEntity entity)

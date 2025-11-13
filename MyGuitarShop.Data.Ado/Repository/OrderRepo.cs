@@ -121,9 +121,41 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orders;
         }
 
-        public Task<int> InsertAsync(OrderEntity entity)
+        public async Task<int> InsertAsync(OrderEntity entity)
         {
-            throw new NotImplementedException();
+            // Create an insert query with variables
+            const string query = @"
+                INSERT INTO Orders (CustomerID, OrderDate, ShipAmount, TaxAmount, ShipDate, ShipAddressID, CardType, CardNumber, CardExpires, BillingAddressID) 
+                VALUES (@CustomerID, @OrderDate, @ShipAmount, @TaxAmount, @ShipDate, @ShipAddressID, @CardType, @CardNumber, @CardExpires, @BillingAddressID);";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable with the entity sent into this function
+                command.Parameters.AddWithValue("@CustomerID", entity.CustomerID);
+                command.Parameters.AddWithValue("@OrderDate", entity.OrderDate);
+                command.Parameters.AddWithValue("@ShipAmount", entity.ShipAmount);
+                command.Parameters.AddWithValue("@TaxAmount", entity.TaxAmount);
+                command.Parameters.AddWithValue("@ShipDate", entity.ShipDate);
+                command.Parameters.AddWithValue("@ShipAddressID", entity.ShipAddressID);
+                command.Parameters.AddWithValue("@CardType", entity.CardType);
+                command.Parameters.AddWithValue("@CardNumber", entity.CardNumber);
+                command.Parameters.AddWithValue("@CardExpires", entity.CardExpires);
+                command.Parameters.AddWithValue("@BillingAddressID", entity.BillingAddressID);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new order");
+                return 0;
+            }
         }
 
         public Task<int> UpdateAsync(int id, OrderEntity entity)

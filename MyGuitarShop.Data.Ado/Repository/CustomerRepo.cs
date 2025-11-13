@@ -113,9 +113,38 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customers;
         }
 
-        public Task<int> InsertAsync(CustomerEntity entity)
+        public async Task<int> InsertAsync(CustomerEntity entity)
         {
-            throw new NotImplementedException();
+            // Create an insert query with variables
+            const string query = @"
+                INSERT INTO Customers (EmailAddress, Password, FirstName, LastName, ShippingAddressID, BillingAddressID) 
+                VALUES (@EmailAddress, @Password, @FirstName, @LastName, @ShippingAddressID, @BillingAddressID);";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable with the entity sent into this function
+                command.Parameters.AddWithValue("@EmailAddress", entity.EmailAddress);
+                command.Parameters.AddWithValue("@Password", entity.Password);
+                command.Parameters.AddWithValue("@FirstName", entity.FirstName);
+                command.Parameters.AddWithValue("@LastName", entity.LastName);
+                command.Parameters.AddWithValue("@ShippingAddressID", entity.ShippingAddressID);
+                command.Parameters.AddWithValue("@BillingAddressID", entity.BillingAddressID);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new customer");
+                return 0;
+            }
         }
 
         public Task<int> UpdateAsync(int id, CustomerEntity entity)
