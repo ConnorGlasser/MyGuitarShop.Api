@@ -20,9 +20,30 @@ namespace MyGuitarShop.Data.Ado.Repository
         SqlConnectionFactory sqlConnectionFactory)
         : IRepository<AddressEntity>
     {
-        public Task<int> DeleteAsync(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            // create the query we will run
+            const string query = @"DELETE FROM Addresses WHERE AddressID = @AddressID";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable with the id sent into this function
+                command.Parameters.AddWithValue("@AddressID", id);
+
+                // runs the query
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error Deleting Addresses");
+                return 0;
+            }
         }
 
         public async Task<AddressEntity?> FindByIDAsync(int id)
