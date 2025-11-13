@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
-using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -15,17 +9,17 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class ProductRepo(
         ILogger<ProductRepo> logger, 
         SqlConnectionFactory sqlConnectionFactory) 
-        : IRepository<ProductEntity>
+        : IRepository<ProductDTO>
     {
         public Task<int> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ProductEntity?> FindByIDAsync(int id)
+        public async Task<ProductDTO?> FindByIDAsync(int id)
         {
             // Create a product var
-            ProductEntity product = null;
+            ProductDTO? product = null;
 
             try
             {
@@ -44,7 +38,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the productID isn't null
                 if (await reader.ReadAsync())
                 {
-                    product = new ProductEntity
+                    product = new ProductDTO
                     {
                         // assign the info from the columns to each of the properties of the product
                         ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
@@ -67,10 +61,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return product;
         }
 
-        public async Task<IEnumerable<ProductEntity>> GetAllAsync()
+        public async Task<IEnumerable<ProductDTO>> GetAllAsync()
         {
             // Create a list of products
-            var products = new List<ProductEntity>();
+            var products = new List<ProductDTO>();
 
             try
             {
@@ -87,7 +81,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new product var
-                    var product = new ProductEntity
+                    var product = new ProductDTO
                     {
                         // assign the info from the columns to each of the properties of the product
                         ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
@@ -115,7 +109,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return products;
         }
 
-        public async Task<int> InsertAsync(ProductEntity entity)
+        public async Task<int> InsertAsync(ProductDTO entity)
         {
             // Create an insert query with variables
             const string query = @"
@@ -150,7 +144,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public Task<int> UpdateAsync(int id, ProductEntity entity)
+        public Task<int> UpdateAsync(int id, ProductDTO DTO)
         {
             throw new NotImplementedException();
         }
