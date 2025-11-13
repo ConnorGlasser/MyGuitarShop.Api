@@ -11,9 +11,30 @@ namespace MyGuitarShop.Data.Ado.Repository
         SqlConnectionFactory sqlConnectionFactory) 
         : IRepository<ProductDTO>
     {
-        public Task<int> DeleteAsync(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            // create the query we will run
+            const string query = @"DELETE FROM Products WHERE ProductID = @ProductID";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable with the id sent into this function
+                command.Parameters.AddWithValue("@ProductID", id);
+
+                // runs the query
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error Deleting Product");
+                return 0;
+            }
         }
 
         public async Task<ProductDTO?> FindByIDAsync(int id)
