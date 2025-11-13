@@ -14,7 +14,7 @@ namespace MyGuitarShop.API.Controllers
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
             try
             {
@@ -25,6 +25,25 @@ namespace MyGuitarShop.API.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error retrieving products");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
+            }
+        }
+
+        [HttpGet ("{id}")]
+        public async Task<IActionResult> GetByIDAsync(int id)
+        {
+            try
+            {
+                var product = await repo.FindByIDAsync(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error retrieving product with ID {ProductID}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
             }
         }
