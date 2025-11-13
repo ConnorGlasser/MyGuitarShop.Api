@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Repository;
@@ -10,7 +11,7 @@ namespace MyGuitarShop.API.Controllers
     [ApiController]
     public class ProductsController(
         ILogger<ProductsController> logger,
-        IRepository<ProductEntity> repo) 
+        IRepository<ProductDTO> repo) 
         : ControllerBase
     {
         [HttpGet]
@@ -49,7 +50,7 @@ namespace MyGuitarShop.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProductAsync(ProductEntity newProduct)
+        public async Task<IActionResult> CreateProductAsync(ProductDTO newProduct)
         {
             try
             {
