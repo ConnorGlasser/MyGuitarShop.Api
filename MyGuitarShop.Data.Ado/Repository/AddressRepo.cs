@@ -118,9 +118,40 @@ namespace MyGuitarShop.Data.Ado.Repository
             return addresses;
         }
 
-        public Task<int> InsertAsync(AddressEntity entity)
+        public async Task<int> InsertAsync(AddressEntity entity)
         {
-            throw new NotImplementedException();
+            // Create an insert query with variables
+            const string query = @"
+                INSERT INTO Addresses (CustomerID, Line1, Line2, City, State, ZipCode, Phone, Disabled) 
+                VALUES (@CustomerID, @Line1, @Line2, @City, @State, @ZipCode, @Phone, @Disabled) ;";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variables with the entity sent into this function
+                command.Parameters.AddWithValue("@CustomerID", entity.CustomerID);
+                command.Parameters.AddWithValue("@Line1", entity.Line1);
+                command.Parameters.AddWithValue("@Line2", entity.Line2);
+                command.Parameters.AddWithValue("@City", entity.City);
+                command.Parameters.AddWithValue("@State", entity.State);
+                command.Parameters.AddWithValue("@ZipCode", entity.ZipCode);
+                command.Parameters.AddWithValue("@Phone", entity.Phone);
+                command.Parameters.AddWithValue("@Disabled", entity.Disabled);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new address");
+                return 0;
+            }
         }
 
         public Task<int> UpdateAsync(int id, AddressEntity entity)

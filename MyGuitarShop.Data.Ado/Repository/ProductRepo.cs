@@ -130,7 +130,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // creates an SQL command that uses said connection
                 await using var command = new SqlCommand(query, connection);
 
-                // set the variable @ProductID with the id sent into this function
+                // set the variable with the entity sent into this function
                 command.Parameters.AddWithValue("@CategoryID", entity.CategoryID);
                 command.Parameters.AddWithValue("@ProductCode", entity.ProductCode);
                 command.Parameters.AddWithValue("@ProductName", entity.ProductName);

@@ -101,9 +101,33 @@ namespace MyGuitarShop.Data.Ado.Repository
             return categories;
         }
 
-        public Task<int> InsertAsync(CategoryEntity entity)
+        public async Task<int> InsertAsync(CategoryEntity entity)
         {
-            throw new NotImplementedException();
+            // Create an insert query with variables
+            const string query = @"
+                INSERT INTO Categories (CategoryName)
+                VALUES (@CategoryName);";
+
+            try
+            {
+                // Gets a connection to the sql database
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+
+                // creates an SQL command that uses said connection
+                await using var command = new SqlCommand(query, connection);
+
+                // set the variable with the entity sent into this function
+                command.Parameters.AddWithValue("@CategoryName", entity.CategoryName);
+
+                // run the query
+                return await command.ExecuteNonQueryAsync();
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new category");
+                return 0;
+            }
         }
 
         public Task<int> UpdateAsync(int id, CategoryEntity entity)
