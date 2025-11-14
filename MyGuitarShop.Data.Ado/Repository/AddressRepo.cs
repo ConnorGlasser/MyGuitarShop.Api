@@ -180,7 +180,8 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Create an update query with variables
             const string query = @"
                 UPDATE Addresses
-                SET Line1 = @Line1, City = @City, State = @State
+                SET CustomerID = @CustomerID, Line1 = @Line1, City = @City, State = @State, ZipCode = @ZipCode, Phone = @Phone,
+                    Disabled = @Disabled
                 WHERE AddressID = @AddressID";
 
             try
@@ -193,9 +194,14 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 // set the variables with the entity sent into this function
                 command.Parameters.AddWithValue("@AddressID", id);
+                command.Parameters.AddWithValue("@CustomerID", DTO.CustomerID);
                 command.Parameters.AddWithValue("@Line1", DTO.Line1);
+                command.Parameters.AddWithValue("@Line2", DTO.Line2);
                 command.Parameters.AddWithValue("@City", DTO.City);
                 command.Parameters.AddWithValue("@State", DTO.State);
+                command.Parameters.AddWithValue("@ZipCode", DTO.ZipCode);
+                command.Parameters.AddWithValue("@Phone", DTO.Phone);
+                command.Parameters.AddWithValue("@Disabled", DTO.Disabled);
 
                 // run the query
                 return await command.ExecuteNonQueryAsync();
@@ -203,7 +209,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error updating address");
-                return 0;
+                throw;
             }
         }
     }

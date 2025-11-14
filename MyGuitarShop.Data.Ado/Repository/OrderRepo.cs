@@ -179,12 +179,14 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, OrderEntity DTO)
+        public async Task<int> UpdateAsync(int id, OrderEntity dto)
         {
             // Create an update query with variables
             const string query = @"
                 UPDATE Orders
-                SET CustomerID = @CustomerID, ShipDate = @ShipDate, ShipAddressID = @ShipAddressID
+                SET CustomerID = @CustomerID, OrderDate = @OrderDate, ShipDate = @ShipDate, ShipAmount = @ShipAmount,
+                    TaxAmount = @TaxAmount, ShipDate = @ShipDate, ShipAddressID = @ShipAddressID, CardType = @CardType,
+                    CardNumber = @CardNumber, CardExpires = @CardExpires, BillingAddressID = @BillingAddressID
                 WHERE OrderID = @OrderID";
 
             try
@@ -197,9 +199,16 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 // set the variables with the entity sent into this function
                 command.Parameters.AddWithValue("@OrderID", id);
-                command.Parameters.AddWithValue("@CustomerID", DTO.CustomerID);
-                command.Parameters.AddWithValue("@ShipDate", DTO.ShipDate);
-                command.Parameters.AddWithValue("@ShipAddressID", DTO.ShipAddressID);
+                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
+                command.Parameters.AddWithValue("@OrderDate", dto.OrderDate);
+                command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
+                command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
+                command.Parameters.AddWithValue("@ShipDate", dto.ShipDate);
+                command.Parameters.AddWithValue("@ShipAddressID", dto.ShipAddressID);
+                command.Parameters.AddWithValue("@CardType", dto.CardType);
+                command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
+                command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
+                command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID);
 
                 // run the query
                 return await command.ExecuteNonQueryAsync();
@@ -207,7 +216,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error updating order");
-                return 0;
+                throw;
             }
         }
     }

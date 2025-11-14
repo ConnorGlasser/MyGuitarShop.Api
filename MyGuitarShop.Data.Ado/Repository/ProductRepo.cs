@@ -14,7 +14,7 @@ namespace MyGuitarShop.Data.Ado.Repository
         public async Task<int> DeleteAsync(int id)
         {
             // create the query we will run
-            const string query = @"DELETE FROM Products WHERE ProductID = @ProductID";
+            const string query = @"DELETE FROM Products WHERE ProductID = @ProductID;";
 
             try
             {
@@ -165,13 +165,14 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, ProductDTO DTO)
+        public async Task<int> UpdateAsync(int id, ProductDTO DTO) 
         {
             // Create an update query with variables
             const string query = @"
                 UPDATE Products
-                SET ProductName = @ProductName, ListPrice = @ListPrice, DiscountPrice = @DiscountPrice
-                WHERE ProductID = @ProductID";
+                SET CategoryID = @CategoryID, ProductCode = @ProductCode, ProductName = @ProductName, 
+                    Description = @Description, ListPrice = @ListPrice, DiscountPercent = @DiscountPercent
+                WHERE ProductID = @ProductID;";
 
             try
             {
@@ -183,7 +184,10 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 // set the variables with the entity sent into this function
                 command.Parameters.AddWithValue("@ProductID", id);
+                command.Parameters.AddWithValue("@CategoryID", DTO.CategoryID);
+                command.Parameters.AddWithValue("@ProductCode", DTO.ProductCode);
                 command.Parameters.AddWithValue("@ProductName", DTO.ProductName);
+                command.Parameters.AddWithValue("@Description", DTO.Description);
                 command.Parameters.AddWithValue("@ListPrice", DTO.ListPrice);
                 command.Parameters.AddWithValue("@DiscountPercent", DTO.DiscountPercent);
 
@@ -193,7 +197,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error updating product");
-                return 0;
+                throw;
             }
         }
     }

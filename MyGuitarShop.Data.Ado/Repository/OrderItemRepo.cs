@@ -169,7 +169,8 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Create an update query with variables
             const string query = @"
                 UPDATE OrderItems
-                SET ProductID = @ProductID, DiscountAmount = @DiscountAmount, Quantity = @Quantity
+                SET OrderID = @OrderID, ProductID = @ProductID, ItemPrice = @ItemPrice, DiscountAmount = @DiscountAmount, 
+                    Quantity = @Quantity
                 WHERE ItemID = @ItemID";
 
             try
@@ -182,7 +183,9 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 // set the variables with the entity sent into this function
                 command.Parameters.AddWithValue("@ItemID", id);
+                command.Parameters.AddWithValue("@OrderID", DTO.OrderID);
                 command.Parameters.AddWithValue("@ProductID", DTO.ProductID);
+                command.Parameters.AddWithValue("@ItemPrice", DTO.ItemPrice);
                 command.Parameters.AddWithValue("@DiscountAmount", DTO.DiscountAmount);
                 command.Parameters.AddWithValue("@Quantity", DTO.Quantity);
 
@@ -192,7 +195,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error updating order item");
-                return 0;
+                throw;
             }
         }
     }
