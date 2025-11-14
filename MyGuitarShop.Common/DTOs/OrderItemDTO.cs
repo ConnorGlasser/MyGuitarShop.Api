@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MyGuitarShop.Common.DTOs
+{
+    public class OrderItemDTO
+    {
+        public required int ItemID { get; set; }
+
+        public required int OrderID { get; set; }
+
+        public required int ProductID { get; set; }
+
+        public required decimal ItemPrice { get; set; }
+
+        public required decimal DiscountAmount { get; set; }
+
+        public required int Quantity { get; set; }
+    }
+}
