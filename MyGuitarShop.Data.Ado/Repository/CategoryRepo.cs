@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
@@ -15,7 +16,7 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class CategoryRepo(
         ILogger<CategoryRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<CategoryEntity>
+        : IRepository<CategoryDTO>
     {
         public async Task<int> DeleteAsync(int id)
         {
@@ -43,10 +44,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<CategoryEntity?> FindByIDAsync(int id)
+        public async Task<CategoryDTO?> FindByIDAsync(int id)
         {
             // Create a category var
-            CategoryEntity category = null;
+            CategoryDTO category = null;
 
             try
             {
@@ -65,7 +66,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the CategoryID isn't null
                 if (await reader.ReadAsync())
                 {
-                    category = new CategoryEntity
+                    category = new CategoryDTO
                     {
                         // assign the info from the columns to each of the properties of the category
                         CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
@@ -82,10 +83,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return category;
         }
 
-        public async Task<IEnumerable<CategoryEntity>> GetAllAsync()
+        public async Task<IEnumerable<CategoryDTO>> GetAllAsync()
         {
             // Create a list of categories
-            var categories = new List<CategoryEntity>();
+            var categories = new List<CategoryDTO>();
 
             try
             {
@@ -102,7 +103,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new category var
-                    var category = new CategoryEntity
+                    var category = new CategoryDTO
                     {
                         // assign the info from the columns to each of the properties of the category
                         CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
@@ -122,7 +123,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return categories;
         }
 
-        public async Task<int> InsertAsync(CategoryEntity entity)
+        public async Task<int> InsertAsync(CategoryDTO entity)
         {
             // Create an insert query with variables
             const string query = @"
@@ -151,11 +152,11 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, CategoryEntity DTO)
+        public async Task<int> UpdateAsync(int id, CategoryDTO DTO)
         {
             // Create an update query with variables
             const string query = @"
-                UPDATE Products
+                UPDATE Categories
                 SET CategoryName = @CategoryName
                 WHERE CategoryID = @CategoryID";
 
@@ -168,7 +169,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var command = new SqlCommand(query, connection);
 
                 // set the variables with the entity sent into this function
-                command.Parameters.AddWithValue("@CategoryID", id);
+                command.Parameters.AddWithValue("@CategoryID", id); 
                 command.Parameters.AddWithValue("@CategoryName", DTO.CategoryName);
 
                 // run the query
