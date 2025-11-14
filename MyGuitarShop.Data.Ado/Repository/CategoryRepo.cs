@@ -177,7 +177,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error updating category");
-                return 0;
+                throw;
             }
         }
     }

@@ -168,7 +168,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             // Create an update query with variables
             const string query = @"
                 UPDATE Administrators
-                SET EmailAddress = @EmailAddress, Password = @Password
+                SET EmailAddress = @EmailAddress, Password = @Password, FirstName = @FirstName, LastName = @LastName
                 WHERE AdminID = @AdminID";
 
             try
@@ -183,6 +183,8 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@AdminID", id);
                 command.Parameters.AddWithValue("@EmailAddress", DTO.EmailAddress);
                 command.Parameters.AddWithValue("@Password", DTO.Password);
+                command.Parameters.AddWithValue("@FirstName", DTO.FirstName);
+                command.Parameters.AddWithValue("@LastName", DTO.LastName);
 
                 // run the query
                 return await command.ExecuteNonQueryAsync();
@@ -190,7 +192,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error updating admin");
-                return 0;
+                throw;
             }
         }
     }
