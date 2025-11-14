@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
@@ -17,7 +18,7 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class OrderItemRepo(
         ILogger<OrderItemRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<OrderItemEntity>
+        : IRepository<OrderItemDTO>
     {
         public async Task<int> DeleteAsync(int id)
         {
@@ -45,10 +46,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<OrderItemEntity?> FindByIDAsync(int id)
+        public async Task<OrderItemDTO?> FindByIDAsync(int id)
         {
             // Create a orderItem var
-            OrderItemEntity orderItem = null;
+            OrderItemDTO orderItem = null;
 
             try
             {
@@ -67,7 +68,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the orderitem isn't null
                 if (await reader.ReadAsync())
                 {
-                    orderItem = new OrderItemEntity
+                    orderItem = new OrderItemDTO
                     {
                         // assign the info from the columns to each of the properties of the orderItem
                         ItemID = reader.GetInt32(reader.GetOrdinal("ItemID")),
@@ -88,10 +89,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orderItem;
         }
 
-        public async Task<IEnumerable<OrderItemEntity>> GetAllAsync()
+        public async Task<IEnumerable<OrderItemDTO>> GetAllAsync()
         {
             // Create a list of orderItems
-            var orderItems = new List<OrderItemEntity>();
+            var orderItems = new List<OrderItemDTO>();
 
             try
             {
@@ -99,7 +100,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
 
                 // creates an SQL command that uses said connection
-                await using var command = new SqlCommand("SELECT * FROM Customers", connection);
+                await using var command = new SqlCommand("SELECT * FROM OrderItems", connection);
 
                 // creates an SQL Data reader that will read data from our sql tables
                 await using var reader = await command.ExecuteReaderAsync();
@@ -108,7 +109,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new orderItem var
-                    var orderItem = new OrderItemEntity
+                    var orderItem = new OrderItemDTO
                     {
                         // assign the info from the columns to each of the properties of the orderItem
                         ItemID = reader.GetInt32(reader.GetOrdinal("ItemID")),
@@ -132,7 +133,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orderItems;
         }
 
-        public async Task<int> InsertAsync(OrderItemEntity entity)
+        public async Task<int> InsertAsync(OrderItemDTO DTO)
         {
             // Create an insert query with variables
             const string query = @"
@@ -148,11 +149,11 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var command = new SqlCommand(query, connection);
 
                 // set the variable with the entity sent into this function
-                command.Parameters.AddWithValue("@OrderID", entity.OrderID);
-                command.Parameters.AddWithValue("@ProductID", entity.ProductID);
-                command.Parameters.AddWithValue("@ItemPrice", entity.ItemPrice);
-                command.Parameters.AddWithValue("@DiscountAmount", entity.DiscountAmount);
-                command.Parameters.AddWithValue("@Quantity", entity.Quantity);
+                command.Parameters.AddWithValue("@OrderID", DTO.OrderID);
+                command.Parameters.AddWithValue("@ProductID", DTO.ProductID);
+                command.Parameters.AddWithValue("@ItemPrice", DTO.ItemPrice);
+                command.Parameters.AddWithValue("@DiscountAmount", DTO.DiscountAmount);
+                command.Parameters.AddWithValue("@Quantity", DTO.Quantity);
 
                 // run the query
                 return await command.ExecuteNonQueryAsync();
@@ -164,7 +165,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, OrderItemEntity DTO)
+        public async Task<int> UpdateAsync(int id, OrderItemDTO DTO)
         {
             // Create an update query with variables
             const string query = @"
