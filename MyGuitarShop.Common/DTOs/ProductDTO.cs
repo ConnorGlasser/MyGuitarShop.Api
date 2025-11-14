@@ -16,7 +16,7 @@ namespace MyGuitarShop.Common.DTOs
         [MaxLength(10)]
         public required string ProductCode { get; set; }
 
-        [MaxLength(10)]
+        [MaxLength(255)]
         public required string ProductName { get; set; }
 
         public required string Description { get; set; }
