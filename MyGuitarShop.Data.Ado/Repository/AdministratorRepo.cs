@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
@@ -18,7 +19,7 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class AdministratorRepo(
         ILogger<AdministratorRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<AdministratorEntity>
+        : IRepository<AdministratorDTO>
     {
         public async Task<int> DeleteAsync(int id)
         {
@@ -46,10 +47,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<AdministratorEntity?> FindByIDAsync(int id)
+        public async Task<AdministratorDTO?> FindByIDAsync(int id)
         {
             // Create a admin var
-            AdministratorEntity admin = null;
+            AdministratorDTO admin = null;
 
             try
             {
@@ -68,7 +69,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the AdminID isn't null
                 if (await reader.ReadAsync())
                 {
-                    admin = new AdministratorEntity
+                    admin = new AdministratorDTO
                     {
                         // assign the info from the columns to each of the properties of the admin
                         AdminID = reader.GetInt32(reader.GetOrdinal("AdminID")),
@@ -88,10 +89,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return admin;
         }
 
-        public async Task<IEnumerable<AdministratorEntity>> GetAllAsync()
+        public async Task<IEnumerable<AdministratorDTO>> GetAllAsync()
         {
             // Create a list of admins
-            var admins = new List<AdministratorEntity>();
+            var admins = new List<AdministratorDTO>();
 
             try
             {
@@ -108,7 +109,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new admin var
-                    var admin = new AdministratorEntity
+                    var admin = new AdministratorDTO
                     {
                         // assign the info from the columns to each of the properties of the admin
                         AdminID = reader.GetInt32(reader.GetOrdinal("AdminID")),
@@ -131,7 +132,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return admins;
         }
 
-        public async Task<int> InsertAsync(AdministratorEntity entity)
+        public async Task<int> InsertAsync(AdministratorDTO entity)
         {
             // Create an insert query with variables
             const string query = @"
@@ -163,7 +164,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, AdministratorEntity DTO)
+        public async Task<int> UpdateAsync(int id, AdministratorDTO DTO)
         {
             // Create an update query with variables
             const string query = @"
