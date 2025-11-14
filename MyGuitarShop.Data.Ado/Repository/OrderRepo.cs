@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
@@ -17,7 +18,7 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class OrderRepo(
         ILogger<OrderRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<OrderEntity>
+        : IRepository<OrderDTO>
     {
         public async Task<int> DeleteAsync(int id)
         {
@@ -45,10 +46,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<OrderEntity?> FindByIDAsync(int id)
+        public async Task<OrderDTO?> FindByIDAsync(int id)
         {
             // Create an order var
-            OrderEntity order = null;
+            OrderDTO order = null;
 
             try
             {
@@ -67,11 +68,13 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the orderID isn't null
                 if (await reader.ReadAsync())
                 {
-                    order = new OrderEntity
+                    order = new OrderDTO
                     {
+
+
                         // assign the info from the columns to each of the properties of the order
                         OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
-                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("CategoryID")),
+                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
                         OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
                         ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
                         TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
@@ -93,10 +96,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return order;
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetAllAsync()
+        public async Task<IEnumerable<OrderDTO>> GetAllAsync()
         {
             // Create a list of orders
-            var orders = new List<OrderEntity>();
+            var orders = new List<OrderDTO>();
 
             try
             {
@@ -113,11 +116,11 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new order var
-                    var order = new OrderEntity
+                    var order = new OrderDTO
                     {
                         // assign the info from the columns to each of the properties of the order
                         OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
-                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("CategoryID")),
+                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
                         OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
                         ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
                         TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
@@ -142,7 +145,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orders;
         }
 
-        public async Task<int> InsertAsync(OrderEntity entity)
+        public async Task<int> InsertAsync(OrderDTO DTO)
         {
             // Create an insert query with variables
             const string query = @"
@@ -158,16 +161,16 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var command = new SqlCommand(query, connection);
 
                 // set the variable with the entity sent into this function
-                command.Parameters.AddWithValue("@CustomerID", entity.CustomerID);
-                command.Parameters.AddWithValue("@OrderDate", entity.OrderDate);
-                command.Parameters.AddWithValue("@ShipAmount", entity.ShipAmount);
-                command.Parameters.AddWithValue("@TaxAmount", entity.TaxAmount);
-                command.Parameters.AddWithValue("@ShipDate", entity.ShipDate);
-                command.Parameters.AddWithValue("@ShipAddressID", entity.ShipAddressID);
-                command.Parameters.AddWithValue("@CardType", entity.CardType);
-                command.Parameters.AddWithValue("@CardNumber", entity.CardNumber);
-                command.Parameters.AddWithValue("@CardExpires", entity.CardExpires);
-                command.Parameters.AddWithValue("@BillingAddressID", entity.BillingAddressID);
+                command.Parameters.AddWithValue("@CustomerID", DTO.CustomerID);
+                command.Parameters.AddWithValue("@OrderDate", DTO.OrderDate);
+                command.Parameters.AddWithValue("@ShipAmount", DTO.ShipAmount);
+                command.Parameters.AddWithValue("@TaxAmount", DTO.TaxAmount);
+                command.Parameters.AddWithValue("@ShipDate", DTO.ShipDate);
+                command.Parameters.AddWithValue("@ShipAddressID", DTO.ShipAddressID);
+                command.Parameters.AddWithValue("@CardType", DTO.CardType);
+                command.Parameters.AddWithValue("@CardNumber", DTO.CardNumber);
+                command.Parameters.AddWithValue("@CardExpires", DTO.CardExpires);
+                command.Parameters.AddWithValue("@BillingAddressID", DTO.BillingAddressID);
 
                 // run the query
                 return await command.ExecuteNonQueryAsync();
@@ -179,7 +182,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, OrderEntity dto)
+        public async Task<int> UpdateAsync(int id, OrderDTO dto)
         {
             // Create an update query with variables
             const string query = @"
