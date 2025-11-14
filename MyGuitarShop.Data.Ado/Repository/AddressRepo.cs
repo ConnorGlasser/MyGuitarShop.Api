@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
@@ -18,7 +19,7 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class AddressRepo(
         ILogger<AddressRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<AddressEntity>
+        : IRepository<AddressDTO>
     {
         public async Task<int> DeleteAsync(int id)
         {
@@ -46,10 +47,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<AddressEntity?> FindByIDAsync(int id)
+        public async Task<AddressDTO?> FindByIDAsync(int id)
         {
             // Create a Address var
-            AddressEntity address = null;
+            AddressDTO address = null;
 
             try
             {
@@ -68,7 +69,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the AddressID isn't null
                 if (await reader.ReadAsync())
                 {
-                    address = new AddressEntity
+                    address = new AddressDTO
                     {
                         // assign the info from the columns to each of the properties of the address
                         AddressID = reader.GetInt32(reader.GetOrdinal("AddressID")),
@@ -92,10 +93,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return address;
         }
 
-        public async Task<IEnumerable<AddressEntity>> GetAllAsync()
+        public async Task<IEnumerable<AddressDTO>> GetAllAsync()
         {
             // Create a list of addresses
-            var addresses = new List<AddressEntity>();
+            var addresses = new List<AddressDTO>();
 
             try
             {
@@ -112,7 +113,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new address var
-                    var address = new AddressEntity
+                    var address = new AddressDTO
                     {
                         // assign the info from the columns to each of the properties of the address
                         AddressID = reader.GetInt32(reader.GetOrdinal("AddressID")),
@@ -139,7 +140,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return addresses;
         }
 
-        public async Task<int> InsertAsync(AddressEntity entity)
+        public async Task<int> InsertAsync(AddressDTO entity)
         {
             // Create an insert query with variables
             const string query = @"
@@ -175,7 +176,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, AddressEntity DTO)
+        public async Task<int> UpdateAsync(int id, AddressDTO DTO)
         {
             // Create an update query with variables
             const string query = @"
