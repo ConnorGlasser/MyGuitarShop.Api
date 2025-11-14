@@ -87,6 +87,7 @@ namespace MyGuitarShop.API
 
             builder.Services.AddScoped<IRepository<ProductDTO>, ProductRepo>();
             builder.Services.AddScoped<IRepository<OrderDTO>, OrderRepo>();
+            builder.Services.AddScoped<IRepository<OrderItemDTO>, OrderItemRepo>();
 
             // Add services to the container.
             builder.Services.AddControllers();
