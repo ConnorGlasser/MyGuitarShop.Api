@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
@@ -17,7 +18,7 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class CustomerRepo(
         ILogger<CustomerRepo> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<CustomerEntity>
+        : IRepository<CustomerDTO>
     {
         public async Task<int> DeleteAsync(int id)
         {
@@ -45,10 +46,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<CustomerEntity?> FindByIDAsync(int id)
+        public async Task<CustomerDTO?> FindByIDAsync(int id)
         {
             // Create a customer var
-            CustomerEntity customer = null;
+            CustomerDTO customer = null;
 
             try
             {
@@ -67,7 +68,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 // if the CustomerID isn't null
                 if (await reader.ReadAsync())
                 {
-                    customer = new CustomerEntity
+                    customer = new CustomerDTO
                     {
                         // assign the info from the columns to each of the properties of the customer
                         CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
@@ -89,10 +90,10 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customer;
         }
 
-        public async Task<IEnumerable<CustomerEntity>> GetAllAsync()
+        public async Task<IEnumerable<CustomerDTO>> GetAllAsync()
         {
             // Create a list of categories
-            var customers = new List<CustomerEntity>();
+            var customers = new List<CustomerDTO>();
 
             try
             {
@@ -109,7 +110,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 while (await reader.ReadAsync())
                 {
                     // create a new customer var
-                    var customer = new CustomerEntity
+                    var customer = new CustomerDTO
                     {
                         // assign the info from the columns to each of the properties of the customer
                         CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
@@ -134,7 +135,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customers;
         }
 
-        public async Task<int> InsertAsync(CustomerEntity entity)
+        public async Task<int> InsertAsync(CustomerDTO entity)
         {
             // Create an insert query with variables
             const string query = @"
@@ -168,7 +169,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> UpdateAsync(int id, CustomerEntity DTO)
+        public async Task<int> UpdateAsync(int id, CustomerDTO DTO)
         {
             // Create an update query with variables
             const string query = @"
