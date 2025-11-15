@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyGuitarShop.Data.Ado.Factories;
+using MyGuitarShop.Data.EFCore.Context;
+
 
 namespace MyGuitarShop.API.Controllers
 {
@@ -8,7 +11,8 @@ namespace MyGuitarShop.API.Controllers
     [ApiController]
     public class HealthController(
         ILogger<HealthController> logger, 
-        SqlConnectionFactory sqlConnectionFactory)
+        SqlConnectionFactory sqlConnectionFactory,
+        MyGuitarShopContext dbContext)
         : ControllerBase
     {
         [HttpGet]
@@ -25,7 +29,7 @@ namespace MyGuitarShop.API.Controllers
             }
         }
 
-        [HttpGet("db")]
+        [HttpGet("db/ado")]
         public IActionResult GetDBHealth()
         {
             try
@@ -37,6 +41,23 @@ namespace MyGuitarShop.API.Controllers
             {
                 logger.LogCritical("Database health check failed");
                 return StatusCode(503, "Unhealthy");
+            }
+        }
+
+        [HttpGet("db/efcore")]
+        public async Task<IActionResult> GetDbContextHealthAsync()
+        {
+            try
+            {
+                if (!await dbContext.Database.CanConnectAsync())
+                    throw new Exception("Cannot to the database via EF Core DbContext.");
+
+                return Ok(new { Message = "EFCore DbContext Connection Successful!", dbContext.Database.GetDbConnection().Database });
+            }
+            catch (Exception)
+            {
+                logger.LogCritical("EfCore DbContext health check failed");
+                return StatusCode(503, "Database Unhealthy via EFCore DbContext");
             }
         }
     }

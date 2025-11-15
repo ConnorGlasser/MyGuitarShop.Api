@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.EntityFrameworkCore;
 using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.Ado.Repository;
+using MyGuitarShop.Data.EFCore.Context;
 
 namespace MyGuitarShop.API
 {
@@ -92,6 +94,9 @@ namespace MyGuitarShop.API
             builder.Services.AddScoped<IRepository<CategoryDTO>, CategoryRepo>();
             builder.Services.AddScoped<IRepository<AdministratorDTO>, AdministratorRepo>();
             builder.Services.AddScoped<IRepository<AddressDTO>, AddressRepo>();
+
+            builder.Services.AddDbContextFactory<MyGuitarShopContext>(options =>
+                options.UseSqlServer(connectionString));
 
             // Add services to the container.
             builder.Services.AddControllers();
