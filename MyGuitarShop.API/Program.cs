@@ -7,6 +7,7 @@ using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.Ado.Repository;
 using MyGuitarShop.Data.EFCore.Context;
+using MyGuitarShop.Data.EFCore.Repositories;
 
 namespace MyGuitarShop.API
 {
@@ -97,6 +98,14 @@ namespace MyGuitarShop.API
 
             builder.Services.AddDbContextFactory<MyGuitarShopContext>(options =>
                 options.UseSqlServer(connectionString));
+
+            builder.Services.AddScoped<ProductRepository>();
+            builder.Services.AddScoped<OrderItemRepository>();
+            builder.Services.AddScoped<OrderRepository>();
+            builder.Services.AddScoped<CustomerRepository>();
+            builder.Services.AddScoped<CategoryRepository>();
+            builder.Services.AddScoped<AdministratorRepository>();
+            builder.Services.AddScoped<AddressRepository>();
 
             // Add services to the container.
             builder.Services.AddControllers();
