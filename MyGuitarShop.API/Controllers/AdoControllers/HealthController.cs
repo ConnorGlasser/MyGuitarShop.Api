@@ -5,7 +5,7 @@ using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.EFCore.Context;
 
 
-namespace MyGuitarShop.API.Controllers
+namespace MyGuitarShop.API.Controllers.AdoControllers
 {
     [Route("api/[controller]")]
     [ApiController]
