@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
@@ -86,6 +87,7 @@ namespace MyGuitarShop.API
             var connectionString = builder.Configuration.GetConnectionString("MyGuitarShop")
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
+            // Ado.net
             builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
 
             builder.Services.AddScoped<IRepository<ProductDTO>, ProductRepo>();
@@ -96,6 +98,7 @@ namespace MyGuitarShop.API
             builder.Services.AddScoped<IRepository<AdministratorDTO>, AdministratorRepo>();
             builder.Services.AddScoped<IRepository<AddressDTO>, AddressRepo>();
 
+            // EFCore
             builder.Services.AddDbContextFactory<MyGuitarShopContext>(options =>
                 options.UseSqlServer(connectionString));
 
@@ -106,6 +109,18 @@ namespace MyGuitarShop.API
             builder.Services.AddScoped<CategoryRepository>();
             builder.Services.AddScoped<AdministratorRepository>();
             builder.Services.AddScoped<AddressRepository>();
+
+            // Mongo Specific
+            var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb")
+                ?? throw new InvalidOperationException("MongoDb Connection string not found");
+
+            builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
+
+            builder.Services.AddSingleton<IMongoDatabase>(sp =>
+            {
+                var mongoClient = sp.GetRequiredService<IMongoClient>();
+                return mongoClient.GetDatabase("MyGuitarShopCluster");
+            });
 
             // Add services to the container.
             builder.Services.AddControllers();
